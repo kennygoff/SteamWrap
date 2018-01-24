@@ -594,6 +594,11 @@ class Steam
 				if (matchmaking.whenLobbyListReceived != null) {
 					matchmaking.whenLobbyListReceived(success);
 				}
+
+			case "P2PSessionRequested":
+				if (networking.whenP2PSessionRequested != null) {
+					networking.whenP2PSessionRequested(obj);
+				}
 		}
 	}
 	

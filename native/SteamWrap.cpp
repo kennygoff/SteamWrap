@@ -168,6 +168,7 @@ static const char* kEventTypeOnLobbyJoined = "LobbyJoined";
 static const char* kEventTypeOnLobbyJoinRequested = "LobbyJoinRequested";
 static const char* kEventTypeOnLobbyCreated = "LobbyCreated";
 static const char* kEventTypeOnLobbyListReceived = "LobbyListReceived";
+static const char* kEventTypeOnP2PSessionRequested = "P2PSessionRequested";
 
 //A simple data structure that holds on to the native 64-bit handles and maps them to regular ints.
 //This is because it is cumbersome to pass back 64-bit values over CFFI, and strictly speaking, the haxe 
@@ -301,6 +302,7 @@ public:
 	STEAM_CALLBACK( CallbackHandler, OnDownloadItem, DownloadItemResult_t, m_CallbackDownloadItemResult );
 	STEAM_CALLBACK( CallbackHandler, OnItemInstalled, ItemInstalled_t, m_CallbackItemInstalled );
 	STEAM_CALLBACK( CallbackHandler, OnLobbyJoinRequested, GameLobbyJoinRequested_t );
+	STEAM_CALLBACK( CallbackHandler, OnP2PSessionRequested, P2PSessionRequest_t );
 	
 	void FindLeaderboard(const char* name);
 	void OnLeaderboardFound( LeaderboardFindResult_t *pResult, bool bIOFailure);
@@ -2151,6 +2153,17 @@ DEFINE_PRIM(SteamWrap_ReceivePacket, 0);
 	return true || SteamNetworking->SendP2PPacket(u64Handle, bytes.data, size, etype);
 }
 DEFINE_PRIME4(SteamWrap_SendP2PPacket);*/
+
+value SteamWrap_AcceptP2PSessionWithUser(value handle) {
+	if (!CheckInit() || !val_is_string(handle)) return alloc_bool(false);
+	uint64 u64Handle = strtoull(val_string(handle), NULL, 0);
+	return alloc_bool(SteamNetworking->AcceptP2PSessionWithUser(u64Handle));
+}
+DEFINE_PRIM(SteamWrap_AcceptP2PSessionWithUser, 1);
+
+void CallbackHandler::OnP2PSessionRequested(P2PSessionRequest_t* pResult) {
+	SendEvent(Event(kEventTypeOnP2PSessionRequested, true, id_to_hx(pResult->m_steamIDRemote)));
+}
 #pragma endregion
 
 #pragma region Steam Matchmaking

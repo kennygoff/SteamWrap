@@ -12,6 +12,13 @@ import steamwrap.helpers.Loader;
 class Networking extends SteamBase {
 	
 	/**
+	 * Called when user wants to communicate with us over the P2P channel via
+	 * the SendP2PPacket, In response, a call to AcceptP2PSessionWithUser needs
+	 * to be made, if you want to open the network channel with them.
+	 */
+	public var whenP2PSessionRequested:String->Void = null;
+	
+	/**
 	 * Sends a packet to the given endpoint.
 	 * @param	id	Steam ID of endpoint
 	 * @param	bytes	Data to be sent
@@ -49,6 +56,17 @@ class Networking extends SteamBase {
 		return SteamWrap_GetPacketSender();
 	}
 	private var SteamWrap_GetPacketSender = Loader.loadRaw("SteamWrap_GetPacketSender", 0);
+	
+	/**
+	 * Accepts a connection from an external user by Steam ID.
+	 * Note that this call should only be made in response to a P2PSessionRequest callback!
+	 * @param	id	Steam ID of endpoint
+	 * @return	Whether accepting succeeded.
+	 */
+	public function acceptP2PSessionWithUser(id:String):Bool {
+		return SteamWrap_AcceptP2PSessionWithUser(id);
+	}
+	private var SteamWrap_AcceptP2PSessionWithUser = Loader.loadRaw("SteamWrap_AcceptP2PSessionWithUser", 1);
 	
 	//
 	private function new(appId:Int, customTrace:String->Void) {
