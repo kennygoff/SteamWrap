@@ -451,36 +451,6 @@ class Controller
 		return data;
 	}
 	
-	/**
-	 * Attempt to display origins of given action in the controller HUD, for the currently active action set
-	 * Returns false is overlay is disabled / unavailable, or the user is not in Big Picture mode
-	 * @param	controller	handle received from getConnectedControllers()
-	 * @param	digitalActionHandle	handle received from getDigitalActionHandle()
-	 * @param	scale	scale multiplier to apply to the on-screen display (1.0 is 1:1 size)
-	 * @param	xPosition	position of the on-screen display (0.5 is the center)
-	 * @param	yPosition	position of the on-screen display (0.5 is the center)
-	 */
-	public function showDigitalActionOrigins(controller:Int, digitalActionHandle:Int, scale:Float, xPosition:Float, yPosition:Float) {
-		
-		SteamWrap_ShowDigitalActionOrigins.call(controller, digitalActionHandle, scale, xPosition, yPosition);
-		
-	}
-	
-	/**
-	 * Attempt to display origins of given action in the controller HUD, for the currently active action set
-	 * Returns false is overlay is disabled / unavailable, or the user is not in Big Picture mode
-	 * @param	controller	handle received from getConnectedControllers()
-	 * @param	analogActionHandle	handle received from getDigitalActionHandle()
-	 * @param	scale	scale multiplier to apply to the on-screen display (1.0 is 1:1 size)
-	 * @param	xPosition	position of the on-screen display (0.5 is the center)
-	 * @param	yPosition	position of the on-screen display (0.5 is the center)
-	 */
-	public function showAnalogActionOrigins(controller:Int, analogActionHandle:Int, scale:Float, xPosition:Float, yPosition:Float) {
-		
-		SteamWrap_ShowAnalogActionOrigins.call(controller, analogActionHandle, scale, xPosition, yPosition);
-		
-	}
-	
 	/*************PRIVATE***************/
 	
 	private var customTrace:String->Void;
@@ -530,8 +500,6 @@ class Controller
 		private var SteamWrap_GetMotionData_rotVelX =   Loader.load("SteamWrap_GetMotionData_rotVelX", "ii");
 		private var SteamWrap_GetMotionData_rotVelY =   Loader.load("SteamWrap_GetMotionData_rotVelY", "ii");
 		private var SteamWrap_GetMotionData_rotVelZ =   Loader.load("SteamWrap_GetMotionData_rotVelZ", "ii");
-	private var SteamWrap_ShowDigitalActionOrigins = Loader.load("SteamWrap_ShowDigitalActionOrigins", "iifffi");
-	private var SteamWrap_ShowAnalogActionOrigins  = Loader.load("SteamWrap_ShowAnalogActionOrigins", "iifffi");
 	
 	
 	private function new(CustomTrace:String->Void)
