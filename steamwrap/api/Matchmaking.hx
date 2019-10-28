@@ -115,6 +115,15 @@ class Matchmaking extends SteamBase {
 		return SteamWrap_ActivateInviteOverlay();
 	}
 	private var SteamWrap_ActivateInviteOverlay = Loader.loadRaw("SteamWrap_ActivateInviteOverlay", 0);
+	
+	/**
+	 * Invite user to lobby by ID.
+	 * This only works while in a lobby.
+	 */
+	public function inviteUserToLobby(inviteeId:SteamID):Bool {
+		return SteamWrap_InviteUserToLobby(inviteeId);
+	}
+	private var SteamWrap_InviteUserToLobby = Loader.loadRaw("SteamWrap_InviteUserToLobby", 1);
 	//}
 	
 	//{ Lobby list

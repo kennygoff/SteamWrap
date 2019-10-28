@@ -6,8 +6,8 @@
 /native/*.pdb
 /obj
 temp/
-
 temp64/
+.DS_Store
 
 ndll/Windows/Windows\.zip
 
@@ -30,3 +30,11 @@ ndll/Linux64/libsteam_api\.so
 ndll/Linux64/steam_appid\.txt
 
 ndll/Linux64/steamwrap\.ndll\.hash
+
+ndll/Mac/libsteam_api\.dylib
+
+ndll/Mac/steamwrap\.ndll\.hash
+
+ndll/Mac64/libsteam_api\.dylib
+
+ndll/Mac64/steamwrap\.ndll\.hash

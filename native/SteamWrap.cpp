@@ -13,6 +13,8 @@
 #include <map>
 
 #include <steam/steam_api.h>
+#include <steam/isteamnetworkingutils.h>
+#include <steam/isteamnetworkingsockets.h>
 
 #pragma region Helpers
 //Thanks to Sven Bergström for these two helper functions:
@@ -1597,7 +1599,7 @@ value SteamWrap_GetSubscribedItems()
 		}
 		data << pvecPublishedFileID[i];
 	}
-	delete pvecPublishedFileID;
+	delete[] pvecPublishedFileID;
 	
 	return alloc_string(data.str().c_str());
 }
@@ -1798,8 +1800,8 @@ value SteamWrap_GetQueryUGCKeyValueTag(value cHandle, value iIndex, value iKeyVa
 	std::ostringstream data;
 	data << pchKey << "=" << pchValue;
 	
-	delete pchKey;
-	delete pchValue;
+	delete[] pchKey;
+	delete[] pchValue;
 	
 	return alloc_string(data.str().c_str());
 }
@@ -1825,7 +1827,7 @@ value SteamWrap_GetQueryUGCMetadata(value sHandle, value iIndex, value iMetaData
 	std::ostringstream data;
 	data << pchMetadata;
 	
-	delete pchMetadata;
+	delete[] pchMetadata;
 	
 	return alloc_string(data.str().c_str());
 }
@@ -1937,7 +1939,7 @@ DEFINE_PRIME1v(SteamWrap_EnumerateUserPublishedFiles);
 
 void SteamWrap_EnumerateUserSubscribedFiles(int startIndex)
 {
-	if(!CheckInit());
+	if(!CheckInit()) return;
 	uint32 unStartIndex = (uint32) startIndex;
 	s_callbackHandler->EnumerateUserSubscribedFiles(unStartIndex);
 }
@@ -1945,7 +1947,7 @@ DEFINE_PRIME1v(SteamWrap_EnumerateUserSubscribedFiles);
 
 void SteamWrap_GetPublishedFileDetails(const char * fileId, int maxSecondsOld)
 {
-	if(!CheckInit());
+	if(!CheckInit()) return;
 	
 	uint64 u64FileID = strtoull(fileId, NULL, 0);
 	uint32 u32MaxSecondsOld = maxSecondsOld;
@@ -1956,7 +1958,7 @@ DEFINE_PRIME2v(SteamWrap_GetPublishedFileDetails);
 
 void SteamWrap_UGCDownload(const char * handle, int priority)
 {
-	if(!CheckInit());
+	if(!CheckInit()) return;
 	
 	uint64 u64Handle = strtoull(handle, NULL, 0);
 	uint32 u32Priority = (uint32) priority;
@@ -2226,6 +2228,14 @@ value SteamWrap_LobbySetData(value field, value data) {
 	} else return alloc_bool(false);
 }
 DEFINE_PRIM(SteamWrap_LobbySetData, 2);
+
+value SteamWrap_InviteUserToLobby(value inviteeId) {
+	if (CheckInit() && SteamMatchmaking() && SteamWrap_LobbyID.IsValid()) {
+		bool result = SteamMatchmaking()->InviteUserToLobby(SteamWrap_LobbyID, hx_to_id(val_string(inviteeId)));
+		return alloc_bool(result);
+	} else return alloc_bool(false);
+}
+DEFINE_PRIM(SteamWrap_InviteUserToLobby, 1);
 
 value SteamWrap_ActivateInviteOverlay() {
 	if (CheckInit() && SteamFriends() && SteamWrap_LobbyID.IsValid()) {
@@ -2930,6 +2940,103 @@ value SteamWrap_GetControllerMaxAnalogActionData()
 DEFINE_PRIM(SteamWrap_GetControllerMaxAnalogActionData,0);
 
 //-----------------------------------------------------------------------------------------------------------
+
+#pragma endregion
+
+#pragma region NetworkingUtils
+
+void SteamWrap_InitRelayNetworkAccess()
+{
+	SteamNetworkingUtils()->InitRelayNetworkAccess();
+}
+DEFINE_PRIM(SteamWrap_InitRelayNetworkAccess, 0);
+
+value SteamWrap_GetRelayNetworkStatus()
+{
+	ESteamNetworkingAvailability _availability = SteamNetworkingUtils()->GetRelayNetworkStatus(NULL);
+	int availability = 0;
+
+	switch(_availability) {
+		case k_ESteamNetworkingAvailability_CannotTry: availability = k_ESteamNetworkingAvailability_CannotTry; break;
+		case k_ESteamNetworkingAvailability_Failed: availability = k_ESteamNetworkingAvailability_Failed; break;
+		case k_ESteamNetworkingAvailability_Previously: availability = k_ESteamNetworkingAvailability_Previously; break;
+		case k_ESteamNetworkingAvailability_Retrying: availability = k_ESteamNetworkingAvailability_Retrying; break;
+		case k_ESteamNetworkingAvailability_NeverTried: availability = k_ESteamNetworkingAvailability_NeverTried; break;
+		case k_ESteamNetworkingAvailability_Waiting: availability = k_ESteamNetworkingAvailability_Waiting; break;
+		case k_ESteamNetworkingAvailability_Attempting: availability = k_ESteamNetworkingAvailability_Attempting; break;
+		case k_ESteamNetworkingAvailability_Current: availability = k_ESteamNetworkingAvailability_Current; break;
+		case k_ESteamNetworkingAvailability_Unknown: availability = k_ESteamNetworkingAvailability_Unknown; break;
+		case k_ESteamNetworkingAvailability__Force32bit: availability = k_ESteamNetworkingAvailability__Force32bit; break;
+	}
+	return alloc_int(availability);
+}
+DEFINE_PRIM(SteamWrap_GetRelayNetworkStatus, 0);
+
+#pragma endregion
+
+#pragma region NetworkingSockets
+
+void SteamWrap_InitAuthentication()
+{
+	SteamNetworkingSockets()->InitAuthentication();
+}
+DEFINE_PRIM(SteamWrap_InitAuthentication, 0);
+
+value SteamWrap_GetAuthenticationStatus()
+{
+	ESteamNetworkingAvailability _availability = SteamNetworkingSockets()->GetAuthenticationStatus(NULL);
+	int availability = 0;
+
+	switch(_availability) {
+		case k_ESteamNetworkingAvailability_CannotTry: availability = k_ESteamNetworkingAvailability_CannotTry; break;
+		case k_ESteamNetworkingAvailability_Failed: availability = k_ESteamNetworkingAvailability_Failed; break;
+		case k_ESteamNetworkingAvailability_Previously: availability = k_ESteamNetworkingAvailability_Previously; break;
+		case k_ESteamNetworkingAvailability_Retrying: availability = k_ESteamNetworkingAvailability_Retrying; break;
+		case k_ESteamNetworkingAvailability_NeverTried: availability = k_ESteamNetworkingAvailability_NeverTried; break;
+		case k_ESteamNetworkingAvailability_Waiting: availability = k_ESteamNetworkingAvailability_Waiting; break;
+		case k_ESteamNetworkingAvailability_Attempting: availability = k_ESteamNetworkingAvailability_Attempting; break;
+		case k_ESteamNetworkingAvailability_Current: availability = k_ESteamNetworkingAvailability_Current; break;
+		case k_ESteamNetworkingAvailability_Unknown: availability = k_ESteamNetworkingAvailability_Unknown; break;
+		case k_ESteamNetworkingAvailability__Force32bit: availability = k_ESteamNetworkingAvailability__Force32bit; break;
+	}
+	return alloc_int(availability);
+}
+DEFINE_PRIM(SteamWrap_GetAuthenticationStatus, 0);
+
+#pragma endregion
+
+#pragma region Friends
+
+value SteamWrap_GetFriendCount()
+{
+	int friendCount = SteamFriends()->GetFriendCount(k_EFriendFlagImmediate);
+	return alloc_int(friendCount);
+}
+DEFINE_PRIM(SteamWrap_GetFriendCount, 0);
+
+value SteamWrap_GetFriendById(value friendIndex)
+{
+	if(!val_is_int(friendIndex) || !CheckInit())
+		return alloc_string("0");
+
+	CSteamID userId = SteamFriends()->GetFriendByIndex((int) val_int(friendIndex), k_EFriendFlagImmediate);
+	
+	std::ostringstream returnData;
+	returnData << userId.ConvertToUint64();
+	
+	return alloc_string(returnData.str().c_str());
+}
+DEFINE_PRIM(SteamWrap_GetFriendById, 1);
+
+value SteamWrap_GetFriendPersonaName(value friendSteamId)
+{
+	if(!val_is_string(friendSteamId) || !CheckInit())
+		return alloc_string("0");
+
+	const char* friendName = SteamFriends()->GetFriendPersonaName(hx_to_id(val_string(friendSteamId)));	
+	return alloc_string(friendName);
+}
+DEFINE_PRIM(SteamWrap_GetFriendPersonaName, 1);
 
 #pragma endregion
 

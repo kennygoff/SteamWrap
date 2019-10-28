@@ -75,9 +75,24 @@ class Steam
 	public static var networking(default, null):Networking;
 	
 	/**
+	 * The Steam NetworkingUtils API
+	 */
+	public static var networkingUtils(default, null):NetworkingUtils;
+	
+	/**
+	 * The Steam NetworkingSockets API
+	 */
+	public static var networkingSockets(default, null):NetworkingSockets;
+	
+	/**
 	 * Steam Matchmaking API
 	 */
 	public static var matchmaking(default, null):Matchmaking;
+	
+	/**
+	 * Steam Friends API
+	 */
+	public static var friends(default, null):Friends;
 	
 	/**
 	 * DEPRECATED: The Steam Workshop API, provided here for legacy support. The UGC API supercedes it and is generally preferred.
@@ -174,7 +189,10 @@ class Steam
 			cloud = new Cloud(appId, customTrace);
 			workshop = new Workshop(appId, customTrace);
 			networking = new Networking(appId, customTrace);
+			networkingUtils = new NetworkingUtils(appId, customTrace);
+			networkingSockets = new NetworkingSockets(appId, customTrace);
 			matchmaking = new Matchmaking(appId, customTrace);
+			friends = new Friends(appId, customTrace);
 		}
 		else {
 			customTrace("Steam failed to activate");
