@@ -652,6 +652,11 @@ class Steam
 				if (matchmaking.whenLobbyListReceived != null) {
 					matchmaking.whenLobbyListReceived(success);
 				}
+
+			case "NetConnectionStatusChanged":
+				if (networkingSockets.whenNetConnectionStatusChanged != null) {
+					networkingSockets.whenNetConnectionStatusChanged(obj);
+				}
 		}
 	}
 	

@@ -170,6 +170,7 @@ static const char* kEventTypeOnLobbyJoined = "LobbyJoined";
 static const char* kEventTypeOnLobbyJoinRequested = "LobbyJoinRequested";
 static const char* kEventTypeOnLobbyCreated = "LobbyCreated";
 static const char* kEventTypeOnLobbyListReceived = "LobbyListReceived";
+static const char* kEventTypeOnNetConnectionStatusChanged = "NetConnectionStatusChanged";
 
 //A simple data structure that holds on to the native 64-bit handles and maps them to regular ints.
 //This is because it is cumbersome to pass back 64-bit values over CFFI, and strictly speaking, the haxe 
@@ -303,6 +304,7 @@ public:
 	STEAM_CALLBACK( CallbackHandler, OnDownloadItem, DownloadItemResult_t, m_CallbackDownloadItemResult );
 	STEAM_CALLBACK( CallbackHandler, OnItemInstalled, ItemInstalled_t, m_CallbackItemInstalled );
 	STEAM_CALLBACK( CallbackHandler, OnLobbyJoinRequested, GameLobbyJoinRequested_t );
+	STEAM_CALLBACK( CallbackHandler, OnNetConnectionStatusChanged, SteamNetConnectionStatusChangedCallback_t );
 	
 	void FindLeaderboard(const char* name);
 	void OnLeaderboardFound( LeaderboardFindResult_t *pResult, bool bIOFailure);
@@ -3016,6 +3018,46 @@ value SteamWrap_CloseListenSocket(value socket)
 	return alloc_bool(result);
 }
 DEFINE_PRIM(SteamWrap_CloseListenSocket, 1);
+
+value SteamWrap_ConnectP2P(value identityRemote)
+{
+	if(!val_is_string(identityRemote) || !CheckInit())
+		return alloc_int(0);
+
+	SteamNetworkingIdentity identity;
+	identity.SetSteamID(hx_to_id(val_string(identityRemote)));
+	HSteamNetConnection result = SteamNetworkingSockets()->ConnectP2P(identity, 0);
+	return alloc_int(result);
+}
+DEFINE_PRIM(SteamWrap_ConnectP2P, 1);
+
+value SteamWrap_AcceptConnection(value connection)
+{
+	if(!val_is_int(connection) || !CheckInit())
+		return alloc_int(0);
+
+	EResult result = SteamNetworkingSockets()->AcceptConnection((int) val_int(connection));
+	return alloc_int(result);
+}
+DEFINE_PRIM(SteamWrap_AcceptConnection, 1);
+
+value SteamWrap_CloseConnection(value connection)
+{
+	if(!val_is_int(connection) || !CheckInit())
+		return alloc_bool(false);
+
+	HSteamNetConnection result = SteamNetworkingSockets()->CloseConnection((int) val_int(connection), 0, NULL, false);
+	return alloc_int(result);
+}
+DEFINE_PRIM(SteamWrap_CloseConnection, 1);
+
+void CallbackHandler::OnNetConnectionStatusChanged(SteamNetConnectionStatusChangedCallback_t* pResult) {
+	value obj = alloc_empty_object();
+	alloc_field(obj, val_id("connection"), alloc_int(pResult->m_hConn));
+	alloc_field(obj, val_id("idenityRemote"), id_to_hx(pResult->m_info.m_identityRemote.GetSteamID()));
+	alloc_field(obj, val_id("state"), alloc_int(pResult->m_info.m_eState));
+	SendEvent(Event(kEventTypeOnNetConnectionStatusChanged, true, obj));
+}
 
 #pragma endregion
 

@@ -46,3 +46,16 @@ class NetworkingUtils extends SteamBase {
 	public var UNKNOWN = 0;
 	public var _FORCE_32_BIT = 100;
 }
+
+@:enum abstract ESteamNetworkingConnectionState(Int) {
+    public var NONE = 0;
+    public var CONNECTING = 1;
+    public var FINDING_ROUTE = 2;
+    public var CONNECTED = 3;
+    public var CLOSED_BY_PEER = 4;
+    public var PROBLEM_DETECTED_LOCALLY = 5;
+    public var FIN_WAIT = -1;
+    public var LINGER = -2;
+    public var DEAD = -3;
+	public var _FORCE_32_BIT = 0x7fffffff;
+}
