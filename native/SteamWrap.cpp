@@ -3056,6 +3056,8 @@ void CallbackHandler::OnNetConnectionStatusChanged(SteamNetConnectionStatusChang
 	alloc_field(obj, val_id("connection"), alloc_int(pResult->m_hConn));
 	alloc_field(obj, val_id("idenityRemote"), id_to_hx(pResult->m_info.m_identityRemote.GetSteamID()));
 	alloc_field(obj, val_id("state"), alloc_int(pResult->m_info.m_eState));
+	alloc_field(obj, val_id("endReason"), alloc_int(pResult->m_info.m_eEndReason));
+	alloc_field(obj, val_id("endDebug"), alloc_string(pResult->m_info.m_szEndDebug));
 	SendEvent(Event(kEventTypeOnNetConnectionStatusChanged, true, obj));
 }
 

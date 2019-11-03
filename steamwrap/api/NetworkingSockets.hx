@@ -15,7 +15,7 @@ import steamwrap.api.NetworkingUtils.ESteamNetworkingConnectionState;
 class NetworkingSockets extends SteamBase {
 	
 	/** Called when network connection status changes */
-	public var whenNetConnectionStatusChanged:{ connection:HSteamNetConnection, identityRemote:SteamID, state:ESteamNetworkingConnectionState }->Void = null;
+	public var whenNetConnectionStatusChanged:{ connection:HSteamNetConnection, identityRemote:SteamID, state:ESteamNetworkingConnectionState, endReason:Int, endDebug:String }->Void = null;
 
     /**
      * Initializes the relay network or checks that the initialization
