@@ -3003,6 +3003,20 @@ value SteamWrap_GetAuthenticationStatus()
 }
 DEFINE_PRIM(SteamWrap_GetAuthenticationStatus, 0);
 
+value SteamWrap_CreateListenSocketP2P()
+{
+	HSteamListenSocket socket = SteamNetworkingSockets()->CreateListenSocketP2P(0);
+	return alloc_int(socket);
+}
+DEFINE_PRIM(SteamWrap_CreateListenSocketP2P, 0);
+
+value SteamWrap_CloseListenSocket(value socket)
+{
+	bool result = SteamNetworkingSockets()->CloseListenSocket((int) val_int(socket));
+	return alloc_bool(result);
+}
+DEFINE_PRIM(SteamWrap_CloseListenSocket, 1);
+
 #pragma endregion
 
 #pragma region Friends

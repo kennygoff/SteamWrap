@@ -1,5 +1,6 @@
 package steamwrap.api;
 
+import haxe.Int32;
 import steamwrap.helpers.SteamBase;
 import steamwrap.helpers.Loader;
 import steamwrap.api.NetworkingUtils.ESteamNetworkingAvailability;
@@ -29,21 +30,29 @@ class NetworkingSockets extends SteamBase {
     }
     private var SteamWrap_GetAuthenticationStatus = Loader.loadRaw("SteamWrap_GetAuthenticationStatus", 0);
 
+    /**
+     * Creates a "server" socket that listens for clients to connect to.
+     * The connection will be relayed through the Valve network.
+     */
+    public function createListenSocketP2P():HSteamListenSocket {
+        return SteamWrap_CreateListenSocketP2P();
+    }
+    private var SteamWrap_CreateListenSocketP2P = Loader.loadRaw("SteamWrap_CreateListenSocketP2P", 0);
+
+    /**
+     * Destroy a listen socket. All the connections that were accepted
+     * on the listen socket are closed ungracefully.
+     */
+    public function closeListenSocket(socket:HSteamListenSocket):Bool {
+        return SteamWrap_CloseListenSocket(socket);
+    }
+    private var SteamWrap_CloseListenSocket = Loader.loadRaw("SteamWrap_CloseListenSocket", 1);
+
     private function new(appId:Int, customTrace:String->Void) {
 		if (active) return;
 		init(appId, customTrace);
 	}
 }
 
-// @:enum abstract ESteamNetworkingAvailability(Int) {
-// 	public var CANNOT_TRY = -102;
-// 	public var FAILED = -101;
-// 	public var PREVIOUSLY = -100;
-// 	public var RETRYING = -10;
-// 	public var NEVER_TRIED = 1;
-// 	public var WAITING = 2;
-// 	public var ATTEMPTING = 3;
-// 	public var CURRENT = 100;
-// 	public var UNKNOWN = 0;
-// 	public var _FORCE_32_BIT = 100;
-// }
+typedef HSteamListenSocket = Int32;
+typedef HSteamNetConnection = Int32;
