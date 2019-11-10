@@ -92,7 +92,7 @@ class NetworkingSockets extends SteamBase {
     public function receiveMessagesOnConnection(connection:HSteamNetConnection, maxMessages:Int):Array<Dynamic> {
         return SteamWrap_ReceiveMessagesOnConnection(connection, maxMessages);
     }
-    private var SteamWrap_ReceiveMessagesOnConnection = Loader.loadRaw("SteamWrap_RecieveMessagesOnConnection", 2);
+    private var SteamWrap_ReceiveMessagesOnConnection = Loader.loadRaw("SteamWrap_ReceiveMessagesOnConnection", 2);
 
     private function new(appId:Int, customTrace:String->Void) {
 		if (active) return;
