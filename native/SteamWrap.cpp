@@ -3051,6 +3051,58 @@ value SteamWrap_CloseConnection(value connection)
 }
 DEFINE_PRIM(SteamWrap_CloseConnection, 1);
 
+value SteamWrap_SendMessageToConnection(value connection, value haxeBytes, value size, value flags) {
+	if(!val_is_int(connection) || !val_is_int(size) || !val_is_int(flags) || !CheckInit())
+		return alloc_bool(false);
+
+    CffiBytes bytes = getByteData(haxeBytes);
+	if (bytes.data == 0)
+		return alloc_bool(false);
+
+	HSteamNetConnection hConn = (int) val_int(connection);
+	uint32 bytesSize = (uint32) val_int(size);
+	int sendFlags = val_int(flags);
+
+	bool result = SteamNetworkingSockets()->SendMessageToConnection(hConn, bytes.data, bytesSize, sendFlags);
+	return alloc_bool(result);
+}
+DEFINE_PRIM(SteamWrap_SendMessageToConnection, 4);
+
+
+// alloc_field(obj, val_id("type"), alloc_string(e.m_type));
+// alloc_field(obj, val_id("success"), alloc_int(e.m_success ? 1 : 0));
+// alloc_field(obj, val_id("data"), e.m_data);
+// val_call1(g_eventHandler->get(), obj);
+
+// return bytes_to_hx((unsigned char*)SteamWrap_PacketData, SteamWrap_PacketSize);
+
+value SteamWrap_ReceiveMessagesOnConnection(value connection, value maxMessages) {
+	if(!val_is_int(connection) || !val_is_int(maxMessages) || !CheckInit())
+		return alloc_bool(false);
+
+	SteamNetworkingMessage_t** netMessages;
+	int numMessages = SteamNetworkingSockets()->ReceiveMessagesOnConnection((int) val_int(connection), netMessages, (int) val_int(maxMessages));
+
+	if(numMessages == -1)
+		return alloc_bool(false);
+
+	value messages = alloc_array(numMessages);
+	for(int i = 0; i < numMessages; i++) {
+		SteamNetworkingMessage_t* message = netMessages[i];
+
+		value obj = alloc_empty_object();
+		alloc_field(obj, val_id("data"), bytes_to_hx((unsigned char*) message->m_pData, message->m_cbSize));
+		alloc_field(obj, val_id("size"), alloc_int((int) message->m_cbSize));
+		alloc_field(obj, val_id("connection"), alloc_int(message->m_conn));
+		alloc_field(obj, val_id("sender"), id_to_hx(message->m_sender.GetSteamID()));
+		val_array_push(messages, obj);
+
+		message->Release();
+	}
+
+	return messages;
+}
+
 void CallbackHandler::OnNetConnectionStatusChanged(SteamNetConnectionStatusChangedCallback_t* pResult) {
 	value obj = alloc_empty_object();
 	alloc_field(obj, val_id("connection"), alloc_int(pResult->m_hConn));

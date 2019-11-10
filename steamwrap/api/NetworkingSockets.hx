@@ -1,6 +1,7 @@
 package steamwrap.api;
 
 import haxe.Int32;
+import haxe.io.Bytes;
 import steamwrap.api.Steam.EResult;
 import steamwrap.helpers.SteamBase;
 import steamwrap.helpers.Loader;
@@ -77,6 +78,22 @@ class NetworkingSockets extends SteamBase {
     }
     private var SteamWrap_CloseConnection = Loader.loadRaw("SteamWrap_CloseConnection", 1);
 
+    /**
+     * Send a message to the remote host on the specified connection.
+     */
+    public function sendMessageToConnection(connection:HSteamNetConnection, data:Bytes, size:Int, flags:Int):Bool {
+        return SteamWrap_SendMessageToConnection(connection, data, size, flags);
+    }
+    private var SteamWrap_SendMessageToConnection = Loader.loadRaw("SteamWrap_SendMessageToConnection", 4);
+
+    /**
+     * Fetch the next available message(s) from the connection, if any.
+     */
+    public function receiveMessagesOnConnection(connection:HSteamNetConnection, maxMessages:Int):Array<Dynamic> {
+        return SteamWrap_ReceiveMessagesOnConnection(connection, maxMessages);
+    }
+    private var SteamWrap_ReceiveMessagesOnConnection = Loader.loadRaw("SteamWrap_RecieveMessagesOnConnection", 2);
+
     private function new(appId:Int, customTrace:String->Void) {
 		if (active) return;
 		init(appId, customTrace);
@@ -85,3 +102,18 @@ class NetworkingSockets extends SteamBase {
 
 typedef HSteamListenSocket = Int32;
 typedef HSteamNetConnection = Int32;
+
+@:enum abstract SteamNetworkingSendFlags(Int) {
+	public var UNRELIABLE = 0;
+	public var NO_NAGLE = 1;
+    public var NO_DELAY = 4;
+    public var RELIABLE = 8;
+}
+
+class SteamNetworkingSend {
+	public static var UNRELIABLE:Int = 0;
+	public static var UNRELIABLE_NO_NAGLE:Int = 0|1;
+    public static var UNRELIABLE_NO_DELAY:Int = 0|1|4;
+    public static var RELIABLE:Int = 8;
+    public static var RELIABLE_NO_NAGLE:Int = 8|1;
+}
