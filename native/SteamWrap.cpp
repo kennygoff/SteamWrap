@@ -3102,7 +3102,7 @@ value SteamWrap_ReceiveMessagesOnConnection(value connection) {
 
 	return messages;
 }
-DEFINE_PRIM(SteamWrap_ReceiveMessagesOnConnection, 2);
+DEFINE_PRIM(SteamWrap_ReceiveMessagesOnConnection, 1);
 
 void CallbackHandler::OnNetConnectionStatusChanged(SteamNetConnectionStatusChangedCallback_t* pResult) {
 	value obj = alloc_empty_object();
