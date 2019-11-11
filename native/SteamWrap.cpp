@@ -3076,39 +3076,29 @@ DEFINE_PRIM(SteamWrap_SendMessageToConnection, 4);
 
 // return bytes_to_hx((unsigned char*)SteamWrap_PacketData, SteamWrap_PacketSize);
 
-value SteamWrap_ReceiveMessagesOnConnection(value connection, value maxMessages) {
-	if(!val_is_int(connection) || !val_is_int(maxMessages) || !CheckInit())
-		return alloc_bool(false);
+value SteamWrap_ReceiveMessagesOnConnection(value connection) {
+	if(!val_is_int(connection) || !CheckInit())
+		return alloc_null();
 
-	SteamNetworkingMessage_t* netMessages = nullptr;
-	int numMessages = SteamNetworkingSockets()->ReceiveMessagesOnConnection((int) val_int(connection), &netMessages, (int) val_int(maxMessages));
+	value messages = alloc_array(0);
+	while(true) {
+		SteamNetworkingMessage_t* message = nullptr;
+		int numMessages = SteamNetworkingSockets()->ReceiveMessagesOnConnection((int) val_int(connection), &message, 1);
 
-	if(numMessages == -1)
-		return alloc_bool(false);
-
-	value messages = alloc_array(numMessages);
-	for(int i = 0; i < numMessages; i++) {
-		SteamNetworkingMessage_t message = netMessages[i];
+		if(numMessages < 0) {
+			return alloc_null();
+		} else if(numMessages == 0) {
+			break;
+		}
 
 		value obj = alloc_empty_object();
-		if(message.m_pData == nullptr) {
-			printf("EXIT\n");
-			// message.Release();
-			continue;
-		}
-		unsigned char *d;
-		d = static_cast<unsigned char*>(message.m_pData);
-		int l = (int) (message.m_cbSize);
-		value bval = bytes_to_hx(d, l);
-		alloc_field(obj, val_id("data"), bval);
-		alloc_field(obj, val_id("size"), alloc_int((int) (message.m_cbSize)));
-		alloc_field(obj, val_id("connection"), alloc_int(message.m_conn));
-		alloc_field(obj, val_id("sender"), id_to_hx(message.m_sender.GetSteamID()));
+		alloc_field(obj, val_id("data"), bytes_to_hx((unsigned char *)message->m_pData, (int)message->m_cbSize));
+		alloc_field(obj, val_id("size"), alloc_int((int) (message->m_cbSize)));
+		alloc_field(obj, val_id("connection"), alloc_int(message->m_conn));
+		alloc_field(obj, val_id("sender"), id_to_hx(message->m_sender.GetSteamID()));
 		val_array_push(messages, obj);
-		// message.Release();
+		message->Release();
 	}
-
-	printf("STEAM END\n");
 
 	return messages;
 }

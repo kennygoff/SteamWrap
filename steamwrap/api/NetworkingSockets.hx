@@ -2,6 +2,7 @@ package steamwrap.api;
 
 import haxe.Int32;
 import haxe.io.Bytes;
+import haxe.io.BytesData;
 import steamwrap.api.Steam.EResult;
 import steamwrap.helpers.SteamBase;
 import steamwrap.helpers.Loader;
@@ -89,10 +90,10 @@ class NetworkingSockets extends SteamBase {
     /**
      * Fetch the next available message(s) from the connection, if any.
      */
-    public function receiveMessagesOnConnection(connection:HSteamNetConnection, maxMessages:Int):Array<Dynamic> {
-        return SteamWrap_ReceiveMessagesOnConnection(connection, maxMessages);
+    public function receiveMessagesOnConnection(connection:HSteamNetConnection):Array<Message> {
+        return SteamWrap_ReceiveMessagesOnConnection(connection);
     }
-    private var SteamWrap_ReceiveMessagesOnConnection = Loader.loadRaw("SteamWrap_ReceiveMessagesOnConnection", 2);
+    private var SteamWrap_ReceiveMessagesOnConnection = Loader.loadRaw("SteamWrap_ReceiveMessagesOnConnection", 1);
 
     private function new(appId:Int, customTrace:String->Void) {
 		if (active) return;
@@ -117,3 +118,10 @@ class SteamNetworkingSend {
     public static var RELIABLE:Int = 8;
     public static var RELIABLE_NO_NAGLE:Int = 8|1;
 }
+
+typedef Message = {
+    data: BytesData,
+    size: Int,
+    connection: HSteamNetConnection,
+    sender: SteamID
+};
